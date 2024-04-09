@@ -12,6 +12,11 @@ public class ParkingLot {
     private String name;
     private String address;
 
+    public ParkingLot(String name, String address) {
+        this.name = name;
+        this.address = address;
+    }
+
     @OneToMany(mappedBy = "parkingLot",cascade = CascadeType.ALL)
     List<Spot> spotList;
 
