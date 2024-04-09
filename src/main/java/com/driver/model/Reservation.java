@@ -26,6 +26,9 @@ public class Reservation {
         this.numberOfHours = numberOfHours;
     }
 
+    public Reservation() {
+    }
+
     private int numberOfHours;
 
     public int getId() {

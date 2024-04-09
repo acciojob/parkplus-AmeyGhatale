@@ -17,6 +17,9 @@ public class ParkingLot {
         this.address = address;
     }
 
+    public ParkingLot() {
+    }
+
     @OneToMany(mappedBy = "parkingLot",cascade = CascadeType.ALL)
     List<Spot> spotList;
 
