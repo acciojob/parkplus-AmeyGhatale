@@ -1,35 +1,38 @@
 package com.driver.model;
 
-import javax.persistence.*;
-import java.time.LocalDateTime;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
 @Entity
 public class Reservation {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
-    @ManyToOne
-    @JoinColumn
+    private int numberOfHours;
     private User user;
-
-    @ManyToOne
-    @JoinColumn
     private Spot spot;
-
-    @OneToOne(mappedBy = "reservation",cascade = CascadeType.ALL)
     private Payment payment;
 
-    public Reservation(User user, Spot spot,  int numberOfHours) {
-        this.user = user;
-        this.spot = spot;
-        this.numberOfHours = numberOfHours;
-    }
+    // No-Args Constructor
 
     public Reservation() {
     }
 
-    private int numberOfHours;
+    // All-Args Constructor
+
+    public Reservation(int id, int numberOfHours, User user, Spot spot, Payment payment) {
+        this.id = id;
+        this.numberOfHours = numberOfHours;
+        this.user = user;
+        this.spot = spot;
+        this.payment = payment;
+    }
+
+    // Getters and Setters
 
     public int getId() {
         return id;
@@ -37,6 +40,14 @@ public class Reservation {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public int getNumberOfHours() {
+        return numberOfHours;
+    }
+
+    public void setNumberOfHours(int numberOfHours) {
+        this.numberOfHours = numberOfHours;
     }
 
     public User getUser() {
@@ -61,13 +72,5 @@ public class Reservation {
 
     public void setPayment(Payment payment) {
         this.payment = payment;
-    }
-
-    public int getNumberOfHours() {
-        return numberOfHours;
-    }
-
-    public void setNumberOfHours(int numberOfHours) {
-        this.numberOfHours = numberOfHours;
     }
 }
