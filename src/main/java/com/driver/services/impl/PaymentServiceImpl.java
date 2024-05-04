@@ -1,17 +1,13 @@
-
-
 package com.driver.services.impl;
 
-import com.driver.model.*;
-import com.driver.repository.ParkingLotRepository;
+import com.driver.model.Payment;
+import com.driver.model.PaymentMode;
+import com.driver.model.Reservation;
 import com.driver.repository.PaymentRepository;
 import com.driver.repository.ReservationRepository;
-import com.driver.repository.SpotRepository;
 import com.driver.services.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class PaymentServiceImpl implements PaymentService {
@@ -20,84 +16,34 @@ public class PaymentServiceImpl implements PaymentService {
     @Autowired
     PaymentRepository paymentRepository2;
 
-    @Autowired
-    ParkingLotRepository parkingLotRepository;
-
-    @Autowired
-    SpotRepository spotRepository;
-
     @Override
     public Payment pay(Integer reservationId, int amountSent, String mode) throws Exception {
+        //Attempt a payment of amountSent for reservationId using the given mode ("cASh", "card", or "upi")
+        //If the amountSent is less than bill, throw "Insufficient Amount" exception, otherwise update payment attributes
+        //If the mode contains a string other than "cash", "card", or "upi" (any character in uppercase or lowercase), throw "Payment mode not detected" exception.
+        //Note that the reservationId always exists
 
         Reservation reservation = reservationRepository2.findById(reservationId).get();
+        Payment payment = new Payment();
 
-        Spot spot = reservation.getSpot();
+        // amount check and mode check
+        int bill = reservation.getSpot().getPricePerHour() * reservation.getNumberOfHours();
 
-        int bill = reservation.getNumberOfHours()*spot.getPricePerHour();
-
-        if(bill>amountSent)
+        if(amountSent < bill){
             throw new Exception("Insufficient Amount");
-
-//        ParkingLot parkingLot = spot.getParkingLot();
-//        List<Spot> spotList = parkingLot.getSpotList();
-
-        /*String paymentMode = mode.toUpperCase();
-        PaymentMode[] paymentModes = PaymentMode.values();
-        Payment pay= null;
-        for(PaymentMode p : paymentModes)
-        {
-            if(paymentMode.equals(p))
-            {
-                if(bill<=amountSent)
-                {
-                    pay.setPaymentMode(p);
-                    pay.setPaymentCompleted(true);
-                    reservation.setPayment(pay);
-                    spot.setOccupied(true);
-                    for(Spot sp:spotList)
-                    {
-                        if(sp==spot)
-                            sp.setOccupied(true);
-                    }
-                    parkingLot.setSpotList(spotList);
-
-                    parkingLotRepository.save(parkingLot);
-                    paymentRepository2.save(pay);
-                    spotRepository.save(spot);
-                    reservationRepository2.save(reservation);
-                    return pay;
-                }
-//                else
-//                    throw new Exception("Insufficient Amount");
-
-            }
-//            throw new Exception("Payment mode not detected");
         }
-        return null;*/
-        if(mode.equalsIgnoreCase("cash") || mode.equalsIgnoreCase("card") || mode.equalsIgnoreCase("upi") ){
-            Payment payment=new Payment();
-
-            if(mode.equalsIgnoreCase("cash")){
-                payment.setPaymentMode(PaymentMode.CASH);
-            }
-            else if(mode.equalsIgnoreCase("card")){
-                payment.setPaymentMode(PaymentMode.CARD);
-            }
-            else payment.setPaymentMode(PaymentMode.UPI);
-
-            payment.setPaymentCompleted(true);
-            payment.setReservation(reservation);
-
-            reservation.setPayment(payment);
-
-
-
-            reservationRepository2.save(reservation);
-
-            return payment;
-
-
+        if (!mode.toUpperCase().equals("CASH") && !mode.toUpperCase().equals("CARD") && !mode.toUpperCase().equals("UPI") ) {
+            throw new Exception("Payment mode not detected");
         }
-        else throw new Exception("Payment mode not detected");
+
+        PaymentMode paymentMode = PaymentMode.valueOf(mode.toUpperCase());
+        payment.setPaymentMode(paymentMode);
+        payment.setPaymentCompleted(true);
+        payment.setReservation(reservation);
+        reservation.setPayment(payment);
+
+
+        reservationRepository2.save(reservation);
+        return payment;
     }
 }
